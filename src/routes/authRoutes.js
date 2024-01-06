@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.post('/api/auth/signup', (req, res) => authController.signup(req, res));
-router.post('/api/auth/login', (req, res) => authController.generateToken(req, res));
+router.post('/signup', async (req, res) => await authController.signup(req, res));
+router.post('/login', async (req, res) => await authController.login(req, res));
 
 module.exports = router;

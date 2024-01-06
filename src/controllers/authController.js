@@ -1,73 +1,56 @@
-// src/controllers/authController.js
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
-const { SECRET_KEY } = process.env;
-
+const createHttpError = require('http-errors');
+const authHelper = require('./helpers/authHelper');
+const dbService = require('./services/dynamoDB');
 class AuthController {
-  authenticateUser(username, password) {
-    // Implement your authentication logic here
-    // For simplicity, let's assume a hardcoded username and password
-    const validUsername = 'user123';
-    const validPassword = 'password123';
 
-    return username === validUsername && password === validPassword;
-  }
-
-  generateToken(req, res) {
+  async login(req, res) {
     const { username, password } = req.body;
 
     // Check if username and password are present in the request
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    try {
+      if (!username || !password) {
+        throw createHttpError.BadRequest("Username and password are required");
+      }
+      (await authHelper.authenticateUser(username, password))
+      console.log("User authentication successful");
+
+      // Generate token for the user
+      const token = await authHelper.generateToken(username);
+      console.log(`Token generated for user ${username}`);
+      await res.json(token);
     }
-
-    // Authenticate the user
-    if (this.authenticateUser(username, password)) {
-      // Create a payload with user information
-      const payload = {
-        username,
-      };
-
-      // Generate a JWT token
-      const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
-
-      // Send the token as a response
-      res.json({ token });
-    } else {
-      // If authentication fails, send an error response
-      res.status(401).json({ error: 'Invalid username or password' });
+    catch (error) {
+      await res.status(error.status || 500).json({ error });
     }
   }
 
-  signupUser(username, password) {
-    // Implement your user signup logic here
-    // For simplicity, let's assume a successful signup
-    // You should replace this with your actual signup logic (e.g., storing user in a database)
-    return true;
-  }
+  async signup(req, res) {
+    try {
+      const { username, password } = req.body;
 
-  signup(req, res) {
-    const { username, password } = req.body;
+      // Check if username and password are present in the request
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+      }
 
-    // Check if username and password are present in the request
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
+      // Check if the user already exists in DynamoDB
+      const result = await dbService.fetchUser(username);
+      if (!!result.Item) {
+        throw createHttpError.Conflict(`A user already exists with the username ${username}`);
+      }
 
-    // Attempt to signup the user
-    if (this.signupUser(username, password)) {
-      // If signup is successful, generate a JWT token for the new user
-      const payload = {
-        username,
-      };
+      // Hash the password (you should use a proper password hashing library)
+      const hashedPassword = await authHelper.hashPassword(password);
 
-      const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
+      // Save the new user to DynamoDB
+      await dbService.createUser(username, hashedPassword);
+
+      const token = await authHelper.generateToken(username);
 
       // Send the token as a response
-      res.json({ token });
-    } else {
-      // If signup fails, send an error response
-      res.status(400).json({ error: 'Failed to signup. Please try again.' });
+      await res.json(token);
+    } catch (error) {
+      await res.status(error.status || 500).json({ error });
     }
   }
 }

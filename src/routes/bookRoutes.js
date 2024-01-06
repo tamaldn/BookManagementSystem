@@ -5,10 +5,10 @@ const authenticateMiddleware = require('../middleware/authenticate');
 
 const router = express.Router();
 
-router.post('/api/books/publish', authenticateMiddleware.verifyToken, (req, res) => bookController.publishBook(req, res));
-router.get('/api/books/search', authenticateMiddleware.verifyToken, (req, res) => bookController.searchBooks(req, res));
-router.put('/api/books/unpublish/:bookId', authenticateMiddleware.verifyToken, (req, res) => bookController.unpublishBook(req, res));
-router.get('/api/books/user', authenticateMiddleware.verifyToken, (req, res) => bookController.getUserBooks(req, res));
-router.get('/api/books/published', authenticateMiddleware.verifyToken, (req, res) => bookController.getAllPublishedBooks(req, res));
+router.post('/publish', (req, res) => bookController.publishBook(req, res));
+router.get('/search', (req, res) => bookController.searchBooks(req, res));
+router.put('/unpublish/:bookId', authenticateMiddleware.verifyToken, (req, res) => bookController.unpublishBook(req, res));
+router.get('/user', (req, res) => bookController.getUserBooks(req, res));
+router.get('/published', (req, res) => bookController.getAllPublishedBooks(req, res));
 
 module.exports = router;

@@ -1,23 +1,28 @@
 // src/controllers/bookController.js
 class BookController {
-    publishBook(req, res) {
+    async publishBook(req, res) {
       // Implement logic for publishing a book
+      console.log("publishing book");
     }
   
-    searchBooks(req, res) {
+    async searchBooks(req, res) {
       // Implement logic for searching books by title
+      console.log("searching book");
     }
   
-    unpublishBook(req, res) {
+    async unpublishBook(req, res) {
       // Implement logic for unpublishing a book
+      console.log("unp book");
     }
   
-    getUserBooks(req, res) {
+    async getUserBooks(req, res) {
       // Implement logic for getting user's books
+      console.log("getting book");
     }
   
-    getAllPublishedBooks(req, res) {
+    async getAllPublishedBooks(req, res) {
       // Implement logic for getting all published books
+      console.log("gettingall book");
     }
   }
   
