@@ -15,7 +15,7 @@ class AuthenticateMiddleware {
         // Verify the token
         const decodedToken = jwt.verify(token, SECRET_KEY);
         // Attach user information to the request for further processing
-        req.user = decodedToken;
+        req.body["username"] = decodedToken.username;
         next();
       } catch (error) {
         throw new createHttpError.Unauthorized(

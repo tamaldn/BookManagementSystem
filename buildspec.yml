@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z5a8s6x3/book-management-backend
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t public.ecr.aws/z5a8s6x3/book-management-backend/book-management-backend .
+      - docker push public.ecr.aws/z5a8s6x3/book-management-backend/book-management-backend:latest
